@@ -46,6 +46,9 @@ public class User {
 //    @OneToMany(mappedBy = "following")
 //    private List<Follow> followers; 이 부분은 추후 기능 구현시 필요해 주석 처리했습니다.
 
+    @OneToMany(mappedBy = "user") // -> 수정할 부분
+    private List<Post> posts;
+
     public User(String username, String password, String name) {
         this.username = username;
         this.password = password;

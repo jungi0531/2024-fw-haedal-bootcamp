@@ -6,6 +6,7 @@ import com.haedal.spring.bootcamp.dto.response.UserDetailResponseDto;
 import com.haedal.spring.bootcamp.dto.response.UserSimpleResponseDto;
 //import haedal.Bootcamp2024_2.repository.FollowRepository;
 //import haedal.Bootcamp2024_2.repository.PostRepository;
+import com.haedal.spring.bootcamp.repository.FollowRepository;
 import com.haedal.spring.bootcamp.repository.PostRepository;
 import com.haedal.spring.bootcamp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final ImageService imageService;
     private final PostRepository postRepository;
+    private final FollowRepository followRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, ImageService imageService, PostRepository postRepository) {
+    public UserService(UserRepository userRepository, ImageService imageService, PostRepository postRepository, FollowRepository followRepository) {
         this.userRepository = userRepository;
         this.imageService = imageService;
         this.postRepository = postRepository;
+        this.followRepository = followRepository;
     }
 
     public UserSimpleResponseDto saveUser(User newUser) {
@@ -47,7 +50,7 @@ public class UserService {
                 currentUser.getUsername(),
                 currentUser.getName(),
                 imageData,
-                false
+                followRepository.existsByFollowerAndFollowing(currentUser, targetUser)
         );
     }
     public List<UserSimpleResponseDto> getAllUsers(User currentUser) {
@@ -103,12 +106,12 @@ public class UserService {
                 targetUser.getUsername(),
                 targetUser.getName(),
                 imageData,
-                false,
+                followRepository.existsByFollowerAndFollowing(currentUser, targetUser),
                 targetUser.getBio(),
                 targetUser.getJoinedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")),
-                0L,
-                0L,
-                0L
+                postRepository.countByUser(targetUser),
+                followRepository.countByFollowing(targetUser),
+                followRepository.countByFollower(targetUser)
         );
     }
 }
